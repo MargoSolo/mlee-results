@@ -53,6 +53,25 @@ The data exists — but it's buried in tables, text, and Kaplan-Meier survival c
 | Extends lifespan | 38 experiments with positive effect |
 | Shortens lifespan | 9 experiments with negative effect |
 
+**Why 102 experiments from 1,000 papers?**
+
+- 1,000 papers searched
+- ~317 had full text available in PMC Open Access
+- ~100 of those contained actual mouse lifespan experiments (the rest were reviews, methodology papers, or had no survival data)
+- One paper can yield multiple experiments (different sexes, doses, or strains) → 100 papers → 102 rows
+
+**What each sheet means:**
+
+| Sheet | Contents |
+|-------|----------|
+| All experiments | Full dataset, all 102 records |
+| Passed | 91 experiments that passed all 3 verification layers — safe to use |
+| Flagged | 9 experiments with minor inconsistencies (e.g. percent_change doesn't match) — included but marked |
+| Failed | 2 experiments with clear errors — excluded from analysis |
+| Extends lifespan | 38 experiments where treatment group outlived control (percent_change > 0) |
+| Shortens lifespan | 9 experiments where treatment reduced lifespan |
+| ITP studies | 4 experiments from the NIA Interventions Testing Program — independently replicated at 3 sites, highest reliability |
+
 **Field coverage on 1,000 papers:**
 
 | Field | Coverage |
