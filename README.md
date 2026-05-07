@@ -95,11 +95,24 @@ intervention, strain, sex, median survival, p-value, sample size, funding, ITP f
 Validated by Pydantic schema before storage.
 
 ### Pass 2 — Vision Extraction (Gemini Flash Vision) ✨ New
-For papers where survival data is **only shown in a Kaplan-Meier figure** (not in text):
 
-1. Scans `<fig>` captions for keywords: *kaplan-meier, survival curve, lifespan, percent alive...*
+**What is a Kaplan-Meier curve?**  
+A Kaplan-Meier (KM) curve is the standard way to show survival data in biomedical research. The x-axis is time (days, weeks, or months), the y-axis is the proportion of mice still alive (0–100%). Each group — treatment and control — has its own curve. The **median survival** is simply where a curve crosses the 50% line. Authors frequently show this figure without writing the actual numbers in the text — making it invisible to any text-only extraction system.
+
+```
+100% |──────╮
+     |       ╲  Treatment
+ 50% |·······×··╲·········  ← median survival (read here)
+     |            ╲  Control ╲
+  0% |_________________________
+        Time (days/weeks)
+```
+
+For papers where survival data is **only shown in a KM figure** (not in text), MLEE reads the figure directly:
+
+1. Scans `<fig>` captions for keywords: *kaplan-meier, survival curve, lifespan, percent alive, age at death...*
 2. Downloads figure image from **PMC Open Access S3**: `pmc-oa-opendata.s3.amazonaws.com/{PMCID}.1/{filename}`
-3. Sends image to Gemini Vision: *"Where does the curve cross the 50% survival line?"*
+3. Sends image to Gemini Vision: *"Where does each curve cross the 50% survival line?"*
 4. Returns structured JSON: treatment days / control days / p-value / n / confidence
 5. Patches **only null fields** — never overwrites text-extracted data
 6. Sanity check: rejects values > 1,825 days (~5 years, impossible for mice)
@@ -150,6 +163,84 @@ Experiments extracted from KM figures (previously null in text extraction):
 | 💊 Biotech & Pharma | Target validation in hours, not weeks |
 | 📈 Investors | Due diligence on aging-focused startups, backed by data |
 | ⚙️ AI infrastructure teams | Production case study: Vertex AI + Gemini at scale |
+
+---
+
+## What Each Column in the Excel Means
+
+<details>
+<summary><b>Click to expand full column reference</b></summary>
+
+### Identifiers
+| Column | Description |
+|--------|-------------|
+| `pmid` | PubMed ID — unique identifier of the source paper |
+| `experiment_id` | Unique ID of this experiment within the paper |
+| `verification_status` | `passed` / `flagged` / `failed` |
+| `verification_flags` | Comma-separated list of warnings or notes from the verification pipeline |
+| `year` / `journal` / `title` | Paper metadata from PubMed |
+
+### Mouse Model
+| Column | Description |
+|--------|-------------|
+| `strain_as_reported` | Strain name exactly as written in the paper |
+| `strain_standardized` | Normalized name (e.g. "C57BL/6J") |
+| `strain_category` | `inbred` / `outbred` / `hybrid` / `transgenic` / `knockout` |
+| `sex` | `male` / `female` / `both` / `not reported` |
+| `age_start_value` + `age_start_unit` | Age at which treatment started |
+
+### Intervention
+| Column | Description |
+|--------|-------------|
+| `intervention_name` | Name as reported in the paper |
+| `intervention_name_std` | Standardized name |
+| `intervention_type` | `pharmacological` / `genetic` / `dietary` / `other` |
+| `intervention_class` | Broader category (e.g. `mTOR inhibitor`, `caloric restriction`) |
+| `chembl_id` | ChEMBL database ID (for drugs) |
+| `hgnc_id` + `gene_name` | Gene identifier (for genetic interventions) |
+| `route` | Administration route (oral, injection, etc.) |
+| `dose_as_reported` | Dose exactly as written |
+| `lifelong` | `Yes` if treatment was given for the animal's entire life |
+
+### Primary Outcome (Lifespan)
+| Column | Description |
+|--------|-------------|
+| `value_treatment_days` | Median survival of the treatment group, in days |
+| `value_control_days` | Median survival of the control group, in days |
+| `percent_change` | `(treatment − control) / control × 100` |
+| `percent_change_as_reported` | % change as written in the paper |
+| `hazard_ratio` | HR from survival analysis (if reported) |
+| `p_value` | Numeric p-value |
+| `p_value_as_reported` | p-value exactly as written (e.g. "p<0.001") |
+| `test_used` | Statistical test (log-rank, Mantel-Cox, etc.) |
+
+### Sample Size
+| Column | Description |
+|--------|-------------|
+| `n_treatment` | Number of mice in treatment group |
+| `n_control` | Number of mice in control group |
+
+### Quality Flags (qa_*)
+| Column | Description |
+|--------|-------------|
+| `qa_p_exact` | `Yes` if exact p-value given (not just "p<0.05") |
+| `qa_ci_given` | `Yes` if confidence interval reported |
+| `qa_censoring_described` | `Yes` if censoring method described |
+| `qa_randomization` | `Yes` if randomization described |
+| `qa_blinding` | `Yes` if blinding described |
+| `qa_power_calc` | `Yes` if power calculation reported |
+| `qa_pct_recomputed_matches` | `Yes` if our recomputed % change matches the reported one |
+
+### Study Context
+| Column | Description |
+|--------|-------------|
+| `itp_study` | `Yes` if from NIA Interventions Testing Program |
+| `funding_source` | Funding agency as reported |
+| `control_type` | `vehicle` / `untreated` / `sham` / etc. |
+| `evidence_span` | `abstract_only` / `full_text` / `figure_vision` |
+| `verification_flags` | Notes from pipeline: vision patch, strain normalization, etc. |
+
+</details>
 
 ---
 
