@@ -134,6 +134,31 @@ Experiments extracted from KM figures (previously null in text extraction):
 
 ---
 
+## PubMed Search Strategy
+
+10,753 papers retrieved via **3 queries** on PubMed, period **2000–2025**.
+
+### Query 1 — Main interventions
+Lifespan terms (`lifespan, longevity, survival, mortality`) × mice (`mice, mus musculus, murine`) × specific interventions:
+
+| Category | Keywords |
+|----------|----------|
+| Diet | caloric restriction, intermittent fasting, dietary restriction |
+| Drugs | rapamycin, metformin, acarbose, resveratrol, 17α-estradiol, aspirin, NMN, nicotinamide riboside, spermidine, fisetin, quercetin |
+| Senolytics | senolytic, senostatic |
+| Genes / pathways | FGF21, klotho, GHR knockout, GHRKO, telomere, telomerase, FOXO, SIRT, sirtuin, autophagy, IGF-1, growth hormone, Ames dwarf, Snell dwarf |
+| Experimental | parabiosis, young blood, plasma |
+
+**Excluded:** in vitro, cell culture, C. elegans, Drosophila, yeast
+
+### Query 2 — ITP / NIA studies
+`Interventions Testing Program` OR `NIA aging` OR `National Institute on Aging` × mice × lifespan
+
+### Query 3 — Genetic longevity models
+`long-lived` OR `extended lifespan` OR `longevity mutant` × transgenic/knockout × survival
+
+---
+
 ## About
 
 **Margarita Soloshenko**  
